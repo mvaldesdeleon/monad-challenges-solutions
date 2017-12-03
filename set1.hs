@@ -45,7 +45,14 @@ liftRand2 f ga gb s = let (a, ns) = ga s
                           in (f a b, fs)
 
 repRandom :: [Gen a] -> Gen [a]
-repRandom [] s = ([], s)
-repRandom (ga:gas) s = let (a, ns) = ga s
-                           (as, fs) = repRandom gas ns
-                           in ((a:as), fs)
+repRandom [] = pureRand []
+repRandom (ga:gas) = bindRand ga (\a ns -> let (as, fs) = repRandom gas ns
+                                          in ((a:as), fs))
+
+bindRand :: Gen a -> (a -> Gen b) -> Gen b
+bindRand ga f s = let (a, ns) = ga s
+                      (b, fs) = f a ns
+                      in pureRand b fs
+
+pureRand :: a -> Gen a
+pureRand a s = (a, s)
