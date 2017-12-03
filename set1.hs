@@ -32,3 +32,11 @@ randOdd = mapRand (+1) randEven
 
 randTen :: Gen Integer -- the output of rand * 10
 randTen = mapRand (*10) rand
+
+randPair :: Gen (Char, Integer)
+randPair = generalPair randLetter rand
+
+generalPair :: Gen a -> Gen b -> Gen (a,b)
+generalPair ga gb s = let (a, ns) = ga s
+                          (b, fs) = gb ns
+                          in ((a, b), fs)
