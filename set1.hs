@@ -37,6 +37,9 @@ randPair :: Gen (Char, Integer)
 randPair = generalPair randLetter rand
 
 generalPair :: Gen a -> Gen b -> Gen (a,b)
-generalPair ga gb s = let (a, ns) = ga s
+generalPair ga gb = liftRand2 (,) ga gb
+
+liftRand2 :: (a -> b -> c) -> Gen a -> Gen b -> Gen c
+liftRand2 f ga gb s = let (a, ns) = ga s
                           (b, fs) = gb ns
-                          in ((a, b), fs)
+                          in (f a b, fs)
