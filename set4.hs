@@ -4,10 +4,31 @@
 module Set4 where
 
 import MCPrelude
+import Set2
 
 class Monad m where
     bind :: m a -> (a -> m b) -> m b
     return :: a -> m a
+
+instance Monad [] where
+    bind as f = concat $ map f as
+    return a = [a]
+
+instance Monad Maybe where
+    bind Nothing  _ = Nothing
+    bind (Just a) f = f a
+    return a = Just a
+
+newtype Gen a = Gen { runGen :: Seed -> (a, Seed) }
+
+evalGen :: Gen a -> Seed -> a
+evalGen = ((.).(.)) fst runGen
+
+instance Monad Gen where
+    bind (Gen ga) f = Gen $ \s -> let (a, ns) = ga s
+                                      Gen gb = f a
+                                      in gb ns
+    return a = Gen $ \s -> (a, s)
 
 -- From Set 1
 -- mapRand :: (a -> b) -> Gen a -> Gen b
