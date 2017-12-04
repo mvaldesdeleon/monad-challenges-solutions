@@ -39,12 +39,12 @@ minimumMay (x:xs) = Just $ foldl min x xs
 
 queryGreek :: GreekData -> String -> Maybe Double
 queryGreek d k = lookupMay k d `bindMaybe`
-                 contrived
-    where contrived xs = tailMay xs `bindMaybe`
-                         maximumMay `bindMaybe`
-                         \max ->
-                            headMay xs `bindMaybe`
-                            (divMay (fromIntegral max) . fromIntegral)
+                 \xs ->
+                    tailMay xs `bindMaybe`
+                    maximumMay `bindMaybe`
+                    \max ->
+                        headMay xs `bindMaybe`
+                        (divMay (fromIntegral max) . fromIntegral)
 
 bindMaybe :: Maybe a -> (a -> Maybe b) -> Maybe b
 bindMaybe m f = case m of
