@@ -40,14 +40,16 @@ generalPair :: Gen a -> Gen b -> Gen (a,b)
 generalPair ga gb = liftRand2 (,) ga gb
 
 liftRand2 :: (a -> b -> c) -> Gen a -> Gen b -> Gen c
-liftRand2 f ga gb s = let (a, ns) = ga s
-                          (b, fs) = gb ns
-                          in (f a b, fs)
+liftRand2 f ga gb = ga `bindRand`
+                      \a ->
+                        gb `bindRand`
+                        \b ->
+                            pureRand $ f a b
 
 repRandom :: [Gen a] -> Gen [a]
 repRandom [] = pureRand []
-repRandom (ga:gas) = bindRand ga (\a ns -> let (as, fs) = repRandom gas ns
-                                          in ((a:as), fs))
+repRandom (ga:gas) = ga `bindRand` (\a ns -> let (as, fs) = repRandom gas ns
+                                                 in pureRand (a:as) fs)
 
 bindRand :: Gen a -> (a -> Gen b) -> Gen b
 bindRand ga f s = let (a, ns) = ga s
