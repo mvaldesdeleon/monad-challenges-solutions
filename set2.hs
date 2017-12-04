@@ -63,3 +63,26 @@ liftMaybe2 f ma mb = ma `bindMaybe`
                         mb `bindMaybe`
                         \b ->
                             pureMaybe (f a b)
+
+tailProd :: Num a => [a] -> Maybe a
+tailProd = tailFold (*) 1
+
+tailSum :: Num a => [a] -> Maybe a
+tailSum = tailFold (+) 0
+
+mapMaybe :: (a -> b) -> Maybe a -> Maybe b
+mapMaybe f ma = ma `bindMaybe`
+                \a ->
+                    pureMaybe $ f a
+
+tailFold :: (b -> a -> b) -> b -> [a] -> Maybe b
+tailFold f z xs = foldl f z `mapMaybe` tailMay xs
+
+tailMax :: Ord a => [a] -> Maybe (Maybe a)
+tailMax xs = maximumMay `mapMaybe` tailMay xs
+
+tailMin :: Ord a => [a] -> Maybe (Maybe a)
+tailMin xs = minimumMay `mapMaybe` tailMay xs
+
+joinMaybe :: Maybe (Maybe a) -> Maybe a
+joinMaybe mma = mma `bindMaybe` id
