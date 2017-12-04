@@ -30,27 +30,24 @@ instance Monad Gen where
                                       in gb ns
     return a = Gen $ \s -> (a, s)
 
--- From Set 1
--- mapRand :: (a -> b) -> Gen a -> Gen b
--- liftRand2 :: (a -> b -> c) -> Gen a -> Gen b -> Gen c
--- pureRand :: a -> Gen a
--- bindRand :: Gen a -> (a -> Gen b) -> Gen b
---
--- repRandom :: [Gen a] -> Gen [a]
+mapM :: Monad m => (a -> b) -> m a -> m b
+mapM f ma = ma `bind` \a -> return $ f a
 
--- From Set 2
--- mapMaybe :: (a -> b) -> Maybe a -> Maybe b
--- liftMaybe2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
--- pureMaybe :: a -> Maybe a
--- bindMaybe :: Maybe a -> (a -> Maybe b) -> Maybe b
---
--- joinMaybe :: Maybe (Maybe a) -> Maybe a
+liftM2 :: Monad m => (a -> b -> c) -> m a -> m b -> m c
+liftM2 f ma mb = ma `bind` \a -> mb `bind` \b -> return $ f a b
 
--- Generics
--- mapM :: (a -> b) -> m a -> m b
--- liftM2 :: (a -> b -> c) m a -> m b -> m c
--- pure :: a -> m a
--- bind :: m a -> (a -> m b) -> m b
---
--- sequence :: [m a] -> m [a]
--- join :: m (m a) -> m a
+sequence :: Monad m => [m a] -> m [a]
+sequence [] = return []
+sequence (ma:mas) = ma `bind` \a -> sequence mas `bind` \as -> return (a:as)
+
+join :: Monad m => m (m a) -> m a
+join ma = ma `bind` id
+
+ap :: Monad m => m (a -> b) -> m a -> m b
+ap mf ma = mf `bind` \f -> ma `bind` \a -> return $ f a
+
+liftM3 :: Monad m => (a -> b -> c -> d) -> m a -> m b -> m c -> m d
+liftM3 f ma mb mc = ma `bind` \a -> mb `bind` \b -> mc `bind` \c -> return $ f a b c
+
+(=<<) :: Monad m => (a -> m b) -> m a -> m b
+(=<<) = flip bind
