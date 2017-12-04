@@ -11,8 +11,11 @@ instance Show Card where
     show (Card r s) = show r ++ s
 
 allPairs :: [a] -> [b] -> [(a,b)]
-allPairs as bs = concat $ map (pairsWith bs) as
-    where pairsWith bs a = map ((,) a) bs
+allPairs = liftList2 (,)
 
 allCards :: [Int] -> [String] -> [Card]
-allCards as bs = map (uncurry Card) $ allPairs as bs
+allCards = liftList2 Card
+
+liftList2 :: (a -> b -> c) -> [a] -> [b] -> [c]
+liftList2 f as bs = concat $ map (pairsWith bs) as
+    where pairsWith bs a = map (f a) bs
