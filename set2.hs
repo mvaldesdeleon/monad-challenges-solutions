@@ -50,3 +50,16 @@ bindMaybe :: Maybe a -> (a -> Maybe b) -> Maybe b
 bindMaybe m f = case m of
                     Nothing -> Nothing
                     Just a -> f a
+
+pureMaybe :: a -> Maybe a
+pureMaybe = Just
+
+addSalaries :: [(String, Integer)] -> String -> String -> Maybe Integer
+addSalaries m a b = liftMaybe2 (+) (lookupMay a m) (lookupMay b m)
+
+liftMaybe2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
+liftMaybe2 f ma mb = ma `bindMaybe`
+                     \a ->
+                        mb `bindMaybe`
+                        \b ->
+                            pureMaybe (f a b)
