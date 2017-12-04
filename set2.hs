@@ -36,3 +36,18 @@ maximumMay (x:xs) = Just $ foldl max x xs
 minimumMay :: Ord a => [a] -> Maybe a
 minimumMay [] = Nothing
 minimumMay (x:xs) = Just $ foldl min x xs
+
+queryGreek :: GreekData -> String -> Maybe Double
+queryGreek d k = let mxs = lookupMay k d
+                 in case mxs of
+                    Nothing -> Nothing
+                    Just xs -> let tail = tailMay xs
+                               in case tail of
+                                    Nothing -> Nothing
+                                    Just tl -> let mx = maximumMay tl
+                                               in case mx of
+                                                    Nothing -> Nothing
+                                                    Just max -> let hd = headMay xs
+                                                                in case hd of
+                                                                    Nothing -> Nothing
+                                                                    Just h -> divMay (fromIntegral max) (fromIntegral h)
