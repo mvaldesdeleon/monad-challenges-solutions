@@ -4,7 +4,13 @@
 module Set4 where
 
 import MCPrelude
-import Set2
+
+data Maybe a = Nothing
+             | Just a
+
+instance Show a => Show (Maybe a) where
+    show Nothing = "Nothing"
+    show (Just a) = "Just " ++ show a
 
 class Monad m where
     bind :: m a -> (a -> m b) -> m b

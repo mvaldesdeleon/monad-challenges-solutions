@@ -4,13 +4,7 @@
 module Set2 where
 
 import MCPrelude
-
-data Maybe a = Nothing
-             | Just a
-
-instance Show a => Show (Maybe a) where
-    show Nothing = "Nothing"
-    show (Just a) = "Just " ++ show a
+import Set4
 
 headMay :: [a] -> Maybe a
 headMay [] = Nothing
@@ -38,31 +32,16 @@ minimumMay [] = Nothing
 minimumMay (x:xs) = Just $ foldl min x xs
 
 queryGreek :: GreekData -> String -> Maybe Double
-queryGreek d k = lookupMay k d `bindMaybe`
+queryGreek d k = lookupMay k d `bind`
                  \xs ->
-                    tailMay xs `bindMaybe`
-                    maximumMay `bindMaybe`
+                    tailMay xs `bind`
+                    maximumMay `bind`
                     \max ->
-                        headMay xs `bindMaybe`
+                        headMay xs `bind`
                         (divMay (fromIntegral max) . fromIntegral)
 
-bindMaybe :: Maybe a -> (a -> Maybe b) -> Maybe b
-bindMaybe m f = case m of
-                    Nothing -> Nothing
-                    Just a -> f a
-
-pureMaybe :: a -> Maybe a
-pureMaybe = Just
-
 addSalaries :: [(String, Integer)] -> String -> String -> Maybe Integer
-addSalaries m a b = liftMaybe2 (+) (lookupMay a m) (lookupMay b m)
-
-liftMaybe2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
-liftMaybe2 f ma mb = ma `bindMaybe`
-                     \a ->
-                        mb `bindMaybe`
-                        \b ->
-                            pureMaybe (f a b)
+addSalaries m a b = liftM2 (+) (lookupMay a m) (lookupMay b m)
 
 tailProd :: Num a => [a] -> Maybe a
 tailProd = tailFold (*) 1
@@ -70,19 +49,14 @@ tailProd = tailFold (*) 1
 tailSum :: Num a => [a] -> Maybe a
 tailSum = tailFold (+) 0
 
-mapMaybe :: (a -> b) -> Maybe a -> Maybe b
-mapMaybe f ma = ma `bindMaybe`
-                \a ->
-                    pureMaybe $ f a
-
 tailFold :: (b -> a -> b) -> b -> [a] -> Maybe b
-tailFold f z xs = foldl f z `mapMaybe` tailMay xs
+tailFold f z xs = foldl f z `mapM` tailMay xs
 
 tailMax :: Ord a => [a] -> Maybe (Maybe a)
-tailMax xs = maximumMay `mapMaybe` tailMay xs
+tailMax xs = maximumMay `mapM` tailMay xs
 
 tailMin :: Ord a => [a] -> Maybe (Maybe a)
-tailMin xs = minimumMay `mapMaybe` tailMay xs
+tailMin xs = minimumMay `mapM` tailMay xs
 
 joinMaybe :: Maybe (Maybe a) -> Maybe a
-joinMaybe mma = mma `bindMaybe` id
+joinMaybe = join
