@@ -4,6 +4,7 @@
 module Set5 where
 
 import MCPrelude
+import Set2
 
 class Monad m where
     (>>=) :: m a -> (a -> m b) -> m b
@@ -48,3 +49,32 @@ generalPair :: Gen a -> Gen b -> Gen (a, b)
 generalPair ga gb = do a <- ga
                        b <- gb
                        return (a, b)
+
+instance Monad Maybe where
+    Nothing  >>= _ = Nothing
+    (Just a) >>= f = f a
+    return a = Just a
+
+queryGreek :: GreekData -> String -> Maybe Double
+queryGreek d k = do xs <- lookupMay k d
+                    tl <- tailMay xs
+                    mx <- maximumMay tl
+                    hd <- headMay xs
+                    divMay (fromIntegral mx) (fromIntegral hd)
+
+addSalaries :: [(String, Integer)] -> String -> String -> Maybe Integer
+addSalaries m a b = do s1 <- lookupMay a m
+                       s2 <- lookupMay b m
+                       return (s1 + s2)
+
+tailProd :: Num a => [a] -> Maybe a
+tailProd xs = do tl <- tailMay xs
+                 return $ foldl (*) 1 tl
+
+tailSum :: Num a => [a] -> Maybe a
+tailSum xs = do tl <- tailMay xs
+                return $ foldl (+) 0 tl
+
+tailMax :: Ord a => [a] -> Maybe a
+tailMax xs = do tl <- tailMay xs
+                maximumMay tl
