@@ -78,3 +78,25 @@ tailSum xs = do tl <- tailMay xs
 tailMax :: Ord a => [a] -> Maybe a
 tailMax xs = do tl <- tailMay xs
                 maximumMay tl
+
+data Card = Card Int String
+     deriving (Show, Eq)
+
+instance Monad [] where
+    as >>= f = concat $ map f as
+    return a = [a]
+
+allPairs :: [a] -> [b] -> [(a,b)]
+allPairs as bs = do a <- as
+                    b <- bs
+                    return (a, b)
+
+allCards :: [Int] -> [String] -> [Card]
+allCards rs ss = do (r, s) <- allPairs rs ss
+                    return $ Card r s
+
+allCombs3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]
+allCombs3 f as bs cs = do a <- as
+                          b <- bs
+                          c <- cs
+                          return $ f a b c
